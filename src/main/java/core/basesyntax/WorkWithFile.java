@@ -22,35 +22,44 @@ public class WorkWithFile {
     }
 
     private String readDataFromFile(String fromFileName) {
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fromFileName))) {
-            int supply = INITIAL_VALUE, buy = INITIAL_VALUE;
+        try (BufferedReader br = new BufferedReader(new FileReader(fromFileName))) {
+            int supply = INITIAL_VALUE;
+            int buy = INITIAL_VALUE;
             String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] splitLine = line.split(DATA_SPLITERATOR);
-                if (splitLine[0].equals(SUPPLY)) {
-                    supply += Integer.parseInt(splitLine[1]);
-                }
-                buy += Integer.parseInt(splitLine[1]);
+            while ((line = br.readLine()) != null) {
+                String[] arr = line.split(DATA_SPLITERATOR);
+                int value = Integer.parseInt(arr[BUY_POSITION]);
+                int[] counters = new int[]{supply, buy};
+                updateCounters(arr[SUPPLY_POSITION], value, counters);
+                supply = counters[SUPPLY_POSITION];
+                buy = counters[BUY_POSITION];
             }
             return supply + DATA_SPLITERATOR + buy;
-        } catch (IOException exception) {
-            throw new RuntimeException("Can't read data from the file " + fromFileName, exception);
+        } catch (IOException e) {
+            throw new RuntimeException("Can't read data from the file " + fromFileName, e);
+        }
+    }
+
+    private void updateCounters(String type, int value, int[] counters) {
+        if (SUPPLY.equals(type)) {
+            counters[SUPPLY_POSITION] += value;
+        }
+        if (BUY.equals(type)) {
+            counters[BUY_POSITION] += value;
         }
     }
 
     private void writeDataToFile(String data, String toFileName) {
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(toFileName))) {
-            String[] dataSplit = data.split(DATA_SPLITERATOR);
-            bufferedWriter.write(SUPPLY + DATA_SPLITERATOR
-                    + dataSplit[SUPPLY_POSITION] + LINE_SEPARATOR);
-            bufferedWriter.write(BUY + DATA_SPLITERATOR
-                    + dataSplit[BUY_POSITION] + LINE_SEPARATOR);
-            bufferedWriter.write(RESULT + DATA_SPLITERATOR
-                    + (Integer.parseInt(dataSplit[SUPPLY_POSITION])
-                    - Integer.parseInt(dataSplit[BUY_POSITION])));
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(toFileName))) {
+            String[] arr = data.split(DATA_SPLITERATOR);
+            int supply = Integer.parseInt(arr[SUPPLY_POSITION]);
+            int buy = Integer.parseInt(arr[BUY_POSITION]);
+            int result = supply - buy;
+            bw.write(SUPPLY + DATA_SPLITERATOR + supply + LINE_SEPARATOR);
+            bw.write(BUY + DATA_SPLITERATOR + buy + LINE_SEPARATOR);
+            bw.write(RESULT + DATA_SPLITERATOR + result);
         } catch (IOException e) {
             throw new RuntimeException("Can't write data to the file " + toFileName, e);
         }
     }
 }
-
