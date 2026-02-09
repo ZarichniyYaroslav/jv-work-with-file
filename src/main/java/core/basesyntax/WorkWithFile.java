@@ -23,20 +23,18 @@ public class WorkWithFile {
 
     private String readDataFromFile(String fromFileName) {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fromFileName))) {
-            int supply = INITIAL_VALUE;
-            int buy = INITIAL_VALUE;
+            int supply = INITIAL_VALUE, buy = INITIAL_VALUE;
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 String[] splitLine = line.split(DATA_SPLITERATOR);
                 if (splitLine[0].equals(SUPPLY)) {
                     supply += Integer.parseInt(splitLine[1]);
-                } else {
-                    buy += Integer.parseInt(splitLine[1]);
                 }
+                buy += Integer.parseInt(splitLine[1]);
             }
             return supply + DATA_SPLITERATOR + buy;
         } catch (IOException exception) {
-            throw new RuntimeException("IO EXCEPTION");
+            throw new RuntimeException("Can't read data from the file " + fromFileName, exception);
         }
     }
 
@@ -51,7 +49,7 @@ public class WorkWithFile {
                     + (Integer.parseInt(dataSplit[SUPPLY_POSITION])
                     - Integer.parseInt(dataSplit[BUY_POSITION])));
         } catch (IOException e) {
-            throw new RuntimeException("IO EXCEPTION");
+            throw new RuntimeException("Can't write data to the file " + toFileName, e);
         }
     }
 }
